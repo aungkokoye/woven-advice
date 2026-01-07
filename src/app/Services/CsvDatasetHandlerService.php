@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Repositories\InvestmentRepository;
+use App\Repositories\InvestorRepository;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\DB;
@@ -129,14 +131,7 @@ class CsvDatasetHandlerService
 
     private function flush(array $investors, array $investments): void
     {
-        // Upsert investors
-        DB::table('investors')->upsert(
-            array_values($investors),
-            ['investor_id'],
-            ['name', 'age', 'updated_at']
-        );
-
-        // Insert investments
-        DB::table('investments')->insert($investments);
+        app(InvestorRepository::class)->upsert($investors);
+        app(InvestmentRepository::class)->insert($investments);
     }
 }

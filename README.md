@@ -32,6 +32,7 @@ docker exec -it laravel_app bash
 ````
 - cd /var/www/html
 - composer install 
+- php artisan migrate
 - supervisorctl start queue_worker
 - npm install && npm run build // optional: for FE assets
 - php artisan key:generate
@@ -80,6 +81,69 @@ To manage the queue worker using Supervisor, open http://localhost:9001 with the
 Username: guest
 Password: guest
 ```
+#### API Documentation
+
+- For Authentication, Laravel Sanctum should use.
+
+- Default expire time for token can change it in `config/sanctum.php` file.
+
+- For Authorization, Laravel Policy should use.
+
+- For Rate Limiting, Laravel Throttle should use, default requests per minute can change it in `.env` file.
+
+CSV File Upload api endpoint:
+
+-  upload (POST)  : Saved the uploaded csv file to src/storage/app/private/csv-investor folder with current timestamp as file name.
+- Process the uploaded csv file in the background using Laravel Job and Queue.
+```
+url: 127.0.0.1:8275/api/csv-upload
+method: POST
+body: form-data
+key: file
+value: (select a csv file)
+
+CURL Example: curl -X POST http://127.0.0.1:8275/api/csv-upload -F "file=@<file-path>/<file-name>.csv"
+```
+
+Investor api endpoints:
+- averageAge (GET) : Get average age of all investors.
+```
+url: 127.0.0.1:8275/api/investor/avg-age
+method: GET
+```
+
+- averageInvestment (GET) : Get average investment amount of all investors.
+```
+url: 127.0.0.1:8275/api/investor/avg-investment
+method: GET
+```
+
+- totalInvestments (GET) : Get total investment number of all investors.
+```
+url: 127.0.0.1:8275/api/investor/total-investments
+method: GET
+```
+
+- listInvestors (GET) : Get all investors with his/her total investment amount. (should use pagination for large data)
+```
+url: 127.0.0.1:8275/api/investors
+method: GET
+```
+
+#### Testing:
+
+How to run the tests (unit and feature tests) inside the `laravel_app` container:
+
+Unit tests cover following class
+- CsvInvestorImportService
+- InvestorService
+- CsvInvestorImportJob
+
+***make sure run following commands inside the `laravel_app` container***
+````
+- cd /var/www/html
+- php artisan test  
+````
 
 ### Learning Laravel
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
